@@ -3,15 +3,17 @@ import TextBox from './TextBox';
 import { styled } from 'styled-components';
 import KakaoMap from './KakaoMap';
 
-function SearchHeader({onChangeSearchWord}) {
-    const [searchWord, setSearchWord] = useState("");
+function SearchHeader({onChangeSearchWord, onChangeCount, count}) {
+    const [targetWord, setTargetWord] = useState("");
 
     const onChange = (e) => {
-        setSearchWord(e.target.value);
+        setTargetWord(e.target.value);
     }
 
     const onSubmit = () => {
-        onChangeSearchWord(searchWord);
+        onChangeSearchWord(targetWord);
+        onChangeCount(count => count + 1);
+        console.log(count);
       };
 
     const onKeyDown = (e) => {

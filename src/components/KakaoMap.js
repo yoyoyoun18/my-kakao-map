@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 
-const KakaoMap = ({searchWord}) => {
+const KakaoMap = ({searchWord, count}) => {
   const [map, setMap] = useState(null);
   const [keyword, setKeyword] = useState(null);
   const [markers, setMarkers] = useState([]);
 
-  useEffect(() => {
-  if (searchWord !== null) {
+ useEffect(() => {
+  setKeyword(searchWord);
+  if(searchWord !== undefined) {
+    console.log(searchWord);
     handleSearch();
   }
-}, [searchWord]);
+}, [count]);
 
   useEffect(() => {
     const container = document.getElementById('map');
@@ -24,10 +26,11 @@ const KakaoMap = ({searchWord}) => {
 
   const handleSearch = () => {
     setKeyword(searchWord);
+    console.log(keyword);
     if (!map) return;
     if (!keyword) return;
-    console.log("키워드 바뀌는 함수 실행됨");
-    console.log(keyword);
+    console.log("검색 시작");
+    console.log("검색어: " + keyword);
 
     markers.forEach(marker => {
       marker.setMap(null);
@@ -45,6 +48,8 @@ const KakaoMap = ({searchWord}) => {
       console.log(data);
     });
   };
+
+
 
   const displayPlaces = (places, map) => {
     const bounds = new window.kakao.maps.LatLngBounds();
