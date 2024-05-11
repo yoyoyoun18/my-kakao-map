@@ -9,6 +9,12 @@ import SearchResults from './components/SearchResults';
 function App() {
   const [searchWord, setSearchWord] = useState(null);
   const [count, setCount] = useState(0);
+  const [data, setData] = useState([]);
+
+  const handleDataUpdate = newData => {
+    setData(newData);
+    console.log(data);
+  };
 
   const onChangeSearchWord = (word) => {
     setSearchWord(word);
@@ -26,7 +32,7 @@ function App() {
             </SearchContainer>
           </Col>
           <Col className="main-right" xs={12} sm={12} md={8} lg={8} style={{ backgroundColor: "black" }}>
-            {searchWord == null ? <KakaoMap count={count} /> : <KakaoMap searchWord={searchWord} count={count} /> }
+            {searchWord == null ? <KakaoMap count={count} onDataUpdate={handleDataUpdate} /> : <KakaoMap searchWord={searchWord} count={count} onDataUpdate={handleDataUpdate} /> }
             {/* <KakaoMap searchWord={searchWord}/> */}
           </Col>
 

@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
-const KakaoMap = ({searchWord, count}) => {
+const KakaoMap = ({ searchWord, count, onDataUpdate }) => {
   const [map, setMap] = useState(null);
   const [keyword, setKeyword] = useState(null);
   const [markers, setMarkers] = useState([]);
+  const [data, setData] = useState([]);
 
- useEffect(() => {
-  setKeyword(searchWord);
-  if(searchWord !== undefined) {
-    console.log(searchWord);
-    handleSearch();
-  }
-}, [count]);
+  useEffect(() => {
+    setKeyword(searchWord);
+    if (searchWord !== undefined) {
+      console.log(searchWord);
+      handleSearch();
+    }
+  }, [count]);
 
   useEffect(() => {
     const container = document.getElementById('map');
@@ -37,19 +38,19 @@ const KakaoMap = ({searchWord, count}) => {
     });
 
     const ps = new window.kakao.maps.services.Places();
-    ps.keywordSearch(keyword, (data, status, pagination) => {
+    ps.keywordSearch(keyword, (places, status, pagination) => {
       if (status === window.kakao.maps.services.Status.OK) {
-        displayPlaces(data, map);
+        displayPlaces(places, map);
+        setData(places); // 데이터 업데이트
+        onDataUpdate(places); // 부모 컴포넌트로 데이터 전달
       } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
         alert('검색 결과가 없습니다.');
       } else if (status === window.kakao.maps.services.Status.ERROR) {
         alert('검색 중 오류가 발생했습니다.');
       }
-      console.log(data);
+      // console.log(places);
     });
   };
-
-
 
   const displayPlaces = (places, map) => {
     const bounds = new window.kakao.maps.LatLngBounds();
@@ -65,11 +66,11 @@ const KakaoMap = ({searchWord, count}) => {
         content: `<div style="padding:5px;font-size:12px;">${place.place_name}</div>`,
       });
 
-      window.kakao.maps.event.addListener(marker, 'mouseover', function() {
+      window.kakao.maps.event.addListener(marker, 'mouseover', function () {
         infowindow.open(map, marker);
       });
 
-      window.kakao.maps.event.addListener(marker, 'mouseout', function() {
+      window.kakao.maps.event.addListener(marker, 'mouseout', function () {
         infowindow.close();
       });
 
@@ -80,8 +81,6 @@ const KakaoMap = ({searchWord, count}) => {
     map.setBounds(bounds);
     setMarkers(newMarkers);
   };
-
-  
 
   return (
     <div className='map-container'>
