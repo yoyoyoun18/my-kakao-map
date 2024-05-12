@@ -1,70 +1,33 @@
-# Getting Started with Create React App
+### My Map (toy project)
+---
+kakao api를 이용하여 지도 검색 서비스를 구현
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### 목표
+---
+ - React.js useEffect, useState, useRef 등 다양한 훅들을 적용해보기
+ - Javascript 비동기처리 구현 (api 요청부)
+ - 대중적인 api 다뤄보기
+ - git page가 아닌 다른 방식으로 배포해보기
 
-## Available Scripts
+### 실행
+--- 
 
-In the project directory, you can run:
+node.js
 
-### `npm start`
+```
+npm install
+npm start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 프로젝트 목표
+---
+kakao map api를 이용하여 장소 검색 서비스를 구축한다.
+오픈 api에 대한 활용도를 높이고 배포까지 하여서 정말 상용 될 수 있는 서비스를 만들어보는 것이 목표.
+OAuth를 이용하여 로그인 시스템을 구현하고 내 집 내가 자주가는 곳 등을 즐겨찾기 할 수 있는 기능 탑재 목표.
+다양한 React.js 의 hook 들과 javascript의 비동기 처리에 대한 이해도를 높이는 것.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 느낀점
+---
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 개선사항, 아쉬운 점
+---
