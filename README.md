@@ -12,7 +12,7 @@ kakao api를 이용하여 지도 검색 서비스를 구현
 ### 실행
 --- 
 
-node.js
+node.js (18.20.2 이상)
 
 ```
 npm install
