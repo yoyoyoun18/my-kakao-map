@@ -2,7 +2,7 @@ import { Container, Row, Col } from 'react-grid-system';
 import "./App.css";
 import SearchContainer from './components/SearchContainer';
 import KakaoMap from './components/KakaoMap';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchResults from './components/SearchResults';
 
 
@@ -10,11 +10,16 @@ function App() {
   const [searchWord, setSearchWord] = useState(null);
   const [count, setCount] = useState(0);
   const [searchData, setSearchData] = useState([]);
+  const [info, setInfo] = useState([]);
 
   const handleDataUpdate = newData => {
     setSearchData(newData);
-    console.log("받아온 데이터" + searchData);
+    console.log("받아온 데이터", newData);
   };
+
+  useEffect(() => {
+    console.log("받아온 데이터", searchData);
+  }, [searchData]);
 
   const onChangeSearchWord = (word) => {
     setSearchWord(word);
@@ -28,7 +33,7 @@ function App() {
       <Container style={{ width: '100%', maxWidth: '100%', padding: 0 }}>
         <Row gutterWidth={0}>
           <Col className="main-left" xs={12} sm={12} md={4} lg={4} style={{}}>
-            <SearchContainer onChangeSearchWord={onChangeSearchWord} onChangeCount={onChangeCount} count={count} >
+            <SearchContainer onChangeSearchWord={onChangeSearchWord} onChangeCount={onChangeCount} count={count} searchLength={searchData.length} searchData={searchData} >
             </SearchContainer>
           </Col>
           <Col className="main-right" xs={12} sm={12} md={8} lg={8} style={{ backgroundColor: "black" }}>

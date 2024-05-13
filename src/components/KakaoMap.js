@@ -19,7 +19,7 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
   useEffect(() => {
     if (data !== null) {
       handleDataUpdate(data); 
-      console.log("검색 결과:", data);
+      // console.log("검색 결과:", data);
     }
   }, [data]);
 
@@ -48,6 +48,7 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
     ps.keywordSearch(keyword, (places, status, pagination) => {
       if (status === window.kakao.maps.services.Status.OK) {
         setData(places); // 데이터 업데이트
+        displayPlaces(places, map); // displayPlaces 호출
       } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
         alert('검색 결과가 없습니다.');
       } else if (status === window.kakao.maps.services.Status.ERROR) {

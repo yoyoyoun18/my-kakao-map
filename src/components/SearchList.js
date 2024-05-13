@@ -1,20 +1,18 @@
 import React from 'react'
 import SearchListElement from './SearchListElement'
 
-function SearchList() { 
+function SearchList({ searchLength, searchData }) { 
 
   return (
     <div className='search-list'>
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-        <SearchListElement title={"장소 이름"} phoneNumber={"전번"} address={"주소"} />
-
+        {searchData.map((item, index) => (
+          <SearchListElement 
+            key={index} 
+            title={item.place_name} 
+            phoneNumber={item.phone} 
+            address={item.address} 
+          />
+        ))}
     </div>
   )
 }
