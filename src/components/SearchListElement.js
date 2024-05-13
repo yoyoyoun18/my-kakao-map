@@ -1,8 +1,8 @@
 import React from 'react'
 
-function SearchListElement({ title, phoneNumber, address }) {
+function SearchListElement({ title, phoneNumber, address, onClick }) {
     return (
-        <div className='search-list-element'>
+        <div className='search-list-element' onClick={onClick}>
             <div style={{ margin: "10px", fontWeight:"bold"}}>
                 {title}
             </div>

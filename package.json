@@ -10,7 +10,7 @@
     "react-dom": "^18.3.1",
     "react-grid-system": "^8.2.0",
     "react-kakao-maps-sdk": "^1.1.26",
-    "react-router-dom": "^6.23.0",
+    "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "styled-components": "^6.1.10",
     "web-vitals": "^2.1.4"
