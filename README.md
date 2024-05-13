@@ -26,6 +26,7 @@ npm start
  - OAuth를 이용하여 로그인 시스템을 구현하고 내 집 내가 자주가는 곳 등을 즐겨찾기 할 수 있는 기능 탑재 목표.
  - 다양한 React.js 의 hook 들과 javascript의 비동기 처리에 대한 이해도를 높이는 것.
  - git을 통한 상태관리, 여러 장소를 이동하며 환경 세팅을 최적화에 힘써 작업 환경에 대한 영향을 줄이기.
+ - useMemo, useCallback, useCallback, Context API, Redux, REST API, Fetch, JSON Schema, AJV, MUI, Vercel, AWS 등 사용해보고 싶었던 기술들을 차례로 적용시켜 버전 업 시키기.
 
 ### 느낀점
 ---
