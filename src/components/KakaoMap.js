@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 
-const KakaoMap = ({ searchWord, count, onDataUpdate }) => {
+const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
   const [map, setMap] = useState(null);
   const [keyword, setKeyword] = useState(null);
   const [markers, setMarkers] = useState([]);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    setKeyword(searchWord);
-    if (searchWord !== undefined) {
-      console.log(searchWord);
+    setKeyword(searchWord); 
+  }, [searchWord]);
+
+  useEffect(() => {
+    if (keyword !== null || count === 0) { 
       handleSearch();
     }
-  }, [count]);
+  }, [keyword, count]); 
+
+  useEffect(() => {
+    if (data !== null) {
+      handleDataUpdate(data); 
+      console.log("검색 결과:", data);
+    }
+  }, [data]);
 
   useEffect(() => {
     const container = document.getElementById('map');
@@ -26,8 +35,6 @@ const KakaoMap = ({ searchWord, count, onDataUpdate }) => {
   }, []);
 
   const handleSearch = () => {
-    setKeyword(searchWord);
-    console.log(keyword);
     if (!map) return;
     if (!keyword) return;
     console.log("검색 시작");
@@ -40,15 +47,12 @@ const KakaoMap = ({ searchWord, count, onDataUpdate }) => {
     const ps = new window.kakao.maps.services.Places();
     ps.keywordSearch(keyword, (places, status, pagination) => {
       if (status === window.kakao.maps.services.Status.OK) {
-        displayPlaces(places, map);
         setData(places); // 데이터 업데이트
-        onDataUpdate(places); // 부모 컴포넌트로 데이터 전달
       } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
         alert('검색 결과가 없습니다.');
       } else if (status === window.kakao.maps.services.Status.ERROR) {
         alert('검색 중 오류가 발생했습니다.');
       }
-      // console.log(places);
     });
   };
 
