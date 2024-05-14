@@ -47,8 +47,14 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
     const ps = new window.kakao.maps.services.Places();
     ps.keywordSearch(keyword, (places, status, pagination) => {
       if (status === window.kakao.maps.services.Status.OK) {
-        setData(places); // 데이터 업데이트
-        displayPlaces(places, map); // displayPlaces 호출
+        // 현재 지도의 경계 가져오기
+        const bounds = map.getBounds();
+        
+        // 경계 내의 장소 필터링
+        const filteredPlaces = places.filter(place => bounds.contain(new window.kakao.maps.LatLng(place.y, place.x)));
+        
+        setData(filteredPlaces); // 필터링된 장소들로 데이터 업데이트
+        displayPlaces(filteredPlaces, map); // displayPlaces 호출
       } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
         alert('검색 결과가 없습니다.');
       } else if (status === window.kakao.maps.services.Status.ERROR) {
