@@ -5,16 +5,37 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
   const [keyword, setKeyword] = useState(null);
   const [markers, setMarkers] = useState([]);
   const [data, setData] = useState(null);
+  const [center, setCenter] = useState();
+
 
   useEffect(() => {
     setKeyword(searchWord); 
   }, [searchWord]);
 
   useEffect(() => {
+    setCenter(); 
+  }, [center]);
+  
+
+  useEffect(() => {
+    if (map) {
+      window.kakao.maps.event.addListener(map, 'dragend', handleSearch);
+      window.kakao.maps.event.addListener(map, 'zoom_changed', handleSearch);
+    }
+  
+    return () => {
+      if (map) {
+        window.kakao.maps.event.removeListener(map, 'dragend', handleSearch);
+        window.kakao.maps.event.removeListener(map, 'zoom_changed', handleSearch);
+      }
+    };
+  }, [map]);
+
+  useEffect(() => {
     if (keyword !== null || count === 0) { 
       handleSearch();
     }
-  }, [keyword, count]); 
+  }, [keyword, count, map]); 
 
   useEffect(() => {
     if (data !== null) {
@@ -34,27 +55,41 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
     setMap(map);
   }, []);
 
+  useEffect(() => {
+    if (map) {
+      // 중심 좌표가 변경될 때마다 실행되는 이벤트 리스너 추가
+      window.kakao.maps.event.addListener(map, 'center_changed', function() {
+        setCenter(map.getCenter());
+      });
+    }
+  }, [map]);
+
+  useEffect(() => {
+    console.log(center);
+  }, [center]);
+
+  const handleCurrentSearch = () => {
+    console.log('handleCurrentSearch 잘 작동 됨');
+  }
+
   const handleSearch = () => {
     if (!map) return;
     if (!keyword) return;
     console.log("검색 시작");
     console.log("검색어: " + keyword);
-
+  
     markers.forEach(marker => {
       marker.setMap(null);
     });
-
+  
     const ps = new window.kakao.maps.services.Places();
     ps.keywordSearch(keyword, (places, status, pagination) => {
       if (status === window.kakao.maps.services.Status.OK) {
-        // 현재 지도의 경계 가져오기
         const bounds = map.getBounds();
-        
-        // 경계 내의 장소 필터링
         const filteredPlaces = places.filter(place => bounds.contain(new window.kakao.maps.LatLng(place.y, place.x)));
-        
-        setData(filteredPlaces); // 필터링된 장소들로 데이터 업데이트
-        displayPlaces(filteredPlaces, map); // displayPlaces 호출
+        // console.log(place.y, place.x);
+        setData(filteredPlaces);
+        displayPlaces(filteredPlaces, map);
       } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
         alert('검색 결과가 없습니다.');
       } else if (status === window.kakao.maps.services.Status.ERROR) {
@@ -95,6 +130,11 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
 
   return (
     <div className='map-container'>
+      <button className='current-position-search-btn'
+        onClick={handleCurrentSearch}
+      >
+        현 위치에서 재검색
+      </button>
       <div id="map" style={{ width: '100%', height: '100%' }}></div>
     </div>
   );

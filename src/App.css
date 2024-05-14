@@ -23,6 +23,11 @@
   cursor: pointer;
 }
 
+.current-position-search-btn {
+  z-index: 99;
+  position: fixed;
+}
+
 .search-header {
   display: flex;
   width: 100%;
