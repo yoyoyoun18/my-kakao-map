@@ -2,48 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
   const [map, setMap] = useState(null);
-  const [keyword, setKeyword] = useState(null);
+  const [keyword, setKeyword] = useState(searchWord);
   const [markers, setMarkers] = useState([]);
   const [data, setData] = useState(null);
-  const [center, setCenter] = useState();
+  const [center, setCenter] = useState(null);
 
-
-  useEffect(() => {
-    setKeyword(searchWord); 
-  }, [searchWord]);
-
-  useEffect(() => {
-    setCenter(); 
-  }, [center]);
-  
-
-  useEffect(() => {
-    if (map) {
-      window.kakao.maps.event.addListener(map, 'dragend', handleSearch);
-      window.kakao.maps.event.addListener(map, 'zoom_changed', handleSearch);
-    }
-  
-    return () => {
-      if (map) {
-        window.kakao.maps.event.removeListener(map, 'dragend', handleSearch);
-        window.kakao.maps.event.removeListener(map, 'zoom_changed', handleSearch);
-      }
-    };
-  }, [map]);
-
-  useEffect(() => {
-    if (keyword !== null || count === 0) { 
-      handleSearch();
-    }
-  }, [keyword, count, map]); 
-
-  useEffect(() => {
-    if (data !== null) {
-      handleDataUpdate(data); 
-      // console.log("검색 결과:", data);
-    }
-  }, [data]);
-
+  // 지도 생성 및 초기화
   useEffect(() => {
     const container = document.getElementById('map');
     const options = {
@@ -51,58 +15,108 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
       level: 5,
     };
 
-    const map = new window.kakao.maps.Map(container, options);
-    setMap(map);
+    const createdMap = new window.kakao.maps.Map(container, options);
+    setMap(createdMap);
   }, []);
 
+  // 검색어 변경 감지
+  useEffect(() => {
+    setKeyword(searchWord);
+  }, [searchWord]);
+
+  // 지도의 중심좌표 변경 감지
   useEffect(() => {
     if (map) {
-      // 중심 좌표가 변경될 때마다 실행되는 이벤트 리스너 추가
-      window.kakao.maps.event.addListener(map, 'center_changed', function() {
-        setCenter(map.getCenter());
-      });
+      const handleCenterChange = () => {
+        const newCenter = map.getCenter();
+        setCenter({ lat: newCenter.getLat(), lng: newCenter.getLng() });  // 새로운 중심 좌표 객체를 상태로 저장
+      };
+      window.kakao.maps.event.addListener(map, 'center_changed', handleCenterChange);
+
+      return () => {
+        window.kakao.maps.event.removeListener(map, 'center_changed', handleCenterChange);
+      };
     }
   }, [map]);
 
+  // 중심 좌표나 검색어 변경 시 검색 실행
   useEffect(() => {
-    console.log(center);
-  }, [center]);
+    if (map && (keyword || count === 0)) {
+      handleSearch();
+      setMarkers([]);
+    }
+  }, [keyword, count, map]);
 
-  const handleCurrentSearch = () => {
-    console.log('handleCurrentSearch 잘 작동 됨');
+  // 데이터 변경 감지
+  useEffect(() => {
+    if (data) {
+      handleDataUpdate(data);
+    }
+  }, [data]);
+
+  // 검색 실행
+
+  function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    var R = 6371; // 지구의 반경 (km)
+    var dLat = deg2rad(lat2 - lat1);
+    var dLon = deg2rad(lon2 - lon1);
+    var a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2); 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c; // 거리 (km)
+    return d * 1000; // 미터로 변환
   }
-
+  
+  function deg2rad(deg) {
+    return deg * (Math.PI/180)
+  }
+  
   const handleSearch = () => {
-    if (!map) return;
-    if (!keyword) return;
-    console.log("검색 시작");
-    console.log("검색어: " + keyword);
-  
-    markers.forEach(marker => {
-      marker.setMap(null);
-    });
-  
+    if (!map || !keyword) return;
+
+    // 기존 마커 제거
+    markers.forEach(marker => marker.setMap(null));
+    setMarkers([]);
+
+    const bounds = map.getBounds();
+    const center = map.getCenter();
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+
+    const radius = getDistanceFromLatLonInKm(sw.getLat(), sw.getLng(), ne.getLat(), ne.getLng()) / 2;
+
+    const searchOption = {
+      location: center,
+      radius: radius  // 반경 설정
+    };
+
     const ps = new window.kakao.maps.services.Places();
+
+    console.log(radius); 
+
     ps.keywordSearch(keyword, (places, status, pagination) => {
-      if (status === window.kakao.maps.services.Status.OK) {
-        const bounds = map.getBounds();
-        const filteredPlaces = places.filter(place => bounds.contain(new window.kakao.maps.LatLng(place.y, place.x)));
-        // console.log(place.y, place.x);
-        setData(filteredPlaces);
-        displayPlaces(filteredPlaces, map);
-      } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-        alert('검색 결과가 없습니다.');
-      } else if (status === window.kakao.maps.services.Status.ERROR) {
-        alert('검색 중 오류가 발생했습니다.');
-      }
-    });
+    if (status === window.kakao.maps.services.Status.OK) {
+      const filteredPlaces = places.filter(place => map.getBounds().contain(new window.kakao.maps.LatLng(place.y, place.x)));
+      setData(filteredPlaces);
+      displayPlaces(filteredPlaces);
+
+      if (pagination.hasNextPage) {
+        pagination.nextPage();  // 다음 페이지가 있다면 추가 요청
+    }
+
+    } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+      alert('검색 결과가 없습니다.');
+    } else if (status === window.kakao.maps.services.Status.ERROR) {
+      alert('검색 중 오류가 발생했습니다.');
+    }
+  }, searchOption);
   };
 
-  const displayPlaces = (places, map) => {
-    const bounds = new window.kakao.maps.LatLngBounds();
-    const newMarkers = [];
-
-    places.forEach(place => {
+  // 장소를 표시하는 함수
+  const displayPlaces = (places) => {
+    const newMarkers = places.map(place => {
       const marker = new window.kakao.maps.Marker({
         map: map,
         position: new window.kakao.maps.LatLng(place.y, place.x),
@@ -112,27 +126,29 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
         content: `<div style="padding:5px;font-size:12px;">${place.place_name}</div>`,
       });
 
-      window.kakao.maps.event.addListener(marker, 'mouseover', function () {
+      window.kakao.maps.event.addListener(marker, 'mouseover', () => {
         infowindow.open(map, marker);
       });
 
-      window.kakao.maps.event.addListener(marker, 'mouseout', function () {
+      window.kakao.maps.event.addListener(marker, 'mouseout', () => {
         infowindow.close();
       });
 
-      bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
-      newMarkers.push(marker);
+      return marker;
     });
 
-    map.setBounds(bounds);
     setMarkers(newMarkers);
+  };
+
+  // 현재 위치에서 재검색 버튼 클릭 시 실행되는 함수
+  const handleCurrentSearch = () => {
+    console.log('현 위치에서 재검색 진행 중');
+    handleSearch();
   };
 
   return (
     <div className='map-container'>
-      <button className='current-position-search-btn'
-        onClick={handleCurrentSearch}
-      >
+      <button className='current-position-search-btn' onClick={handleCurrentSearch}>
         현 위치에서 재검색
       </button>
       <div id="map" style={{ width: '100%', height: '100%' }}></div>
