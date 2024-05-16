@@ -7,6 +7,36 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
   const [data, setData] = useState(null);
   const [center, setCenter] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [myLocationCount, setMyLocationCount] = useState(0);
+
+  useEffect(() => {
+    // 브라우저에서 위치 접근 권한 요청
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        // 위치 접근 성공 시
+        initializeMap(position.coords.latitude, position.coords.longitude);
+      }, () => {
+        // 위치 접근 실패 시 기본 위치 사용 (서울시청)
+        initializeMap(37.5662952, 126.9779451);
+      });
+    } else {
+      // Geolocation이 지원되지 않는 경우
+      alert('이 브라우저에서는 Geolocation이 지원되지 않습니다.');
+      initializeMap(37.5662952, 126.9779451); // 기본 위치 설정
+    }
+  }, [myLocationCount]);
+
+  // 지도 초기화 함수
+  const initializeMap = (lat, lng) => {
+    const container = document.getElementById('map');
+    const options = {
+      center: new window.kakao.maps.LatLng(lat, lng),
+      level: 3
+    };
+
+    const createdMap = new window.kakao.maps.Map(container, options);
+    setMap(createdMap);
+  };
 
 
   // 지도 생성 및 초기화
@@ -151,14 +181,13 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
 
   // 현재 위치에서 재검색 버튼 클릭 시 실행되는 함수
   const handleCurrentSearch = () => {
-    console.log('현 위치에서 재검색 진행 중');
-    handleSearch();
+    setMyLocationCount(myLocationCount => myLocationCount + 1);
   };
 
   return (
     <div className='map-container'>
       <button className='current-position-search-btn' onClick={handleCurrentSearch}>
-        현 위치에서 재검색
+        내 위치로
       </button>
       <div id="map" style={{ width: '100%', height: '100%' }}></div>
     </div>
