@@ -6,6 +6,8 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
   const [markers, setMarkers] = useState([]);
   const [data, setData] = useState(null);
   const [center, setCenter] = useState(null);
+  const [loading, setLoading] = useState(false);
+
 
   // 지도 생성 및 초기화
   useEffect(() => {
@@ -76,7 +78,7 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
   const handleSearch = () => {
     if (!map || !keyword) return;
 
-    // 기존 마커 제거
+    setLoading(true);
     markers.forEach(marker => marker.setMap(null));
     setMarkers([]);
 
@@ -84,35 +86,42 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
     const center = map.getCenter();
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
-
     const radius = getDistanceFromLatLonInKm(sw.getLat(), sw.getLng(), ne.getLat(), ne.getLng()) / 2;
-
     const searchOption = {
       location: center,
-      radius: radius  // 반경 설정
+      radius: radius
     };
 
     const ps = new window.kakao.maps.services.Places();
+    let accumulatedResults = []; // 임시 배열로 누적된 결과를 저장합니다.
 
-    console.log(radius); 
+    // 재귀적으로 검색 결과를 누적하는 함수
+    const fetchResults = (callback, pagination = null) => {
+      if (pagination) {
+        pagination.nextPage(callback); // 다음 페이지 요청
+      } else {
+        ps.keywordSearch(keyword, callback, searchOption); // 첫 페이지 요청
+      }
+    };
 
-    ps.keywordSearch(keyword, (places, status, pagination) => {
-    if (status === window.kakao.maps.services.Status.OK) {
-      const filteredPlaces = places.filter(place => map.getBounds().contain(new window.kakao.maps.LatLng(place.y, place.x)));
-      setData(filteredPlaces);
-      displayPlaces(filteredPlaces);
+    const processResults = (places, status, pagination) => {
+      if (status === window.kakao.maps.services.Status.OK) {
+        accumulatedResults = accumulatedResults.concat(places.filter(place => map.getBounds().contain(new window.kakao.maps.LatLng(place.y, place.x))));
+        if (pagination.hasNextPage) {
+          fetchResults(processResults, pagination);
+        } else {
+          setData(accumulatedResults); // 모든 페이지의 데이터 로드가 완료되면 상태 업데이트
+          displayPlaces(accumulatedResults);
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+        alert('검색 결과가 없습니다.');
+      }
+    };
 
-      if (pagination.hasNextPage) {
-        pagination.nextPage();  // 다음 페이지가 있다면 추가 요청
-    }
-
-    } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-      alert('검색 결과가 없습니다.');
-    } else if (status === window.kakao.maps.services.Status.ERROR) {
-      alert('검색 중 오류가 발생했습니다.');
-    }
-  }, searchOption);
-  };
+    fetchResults(processResults); // 검색 시작
+};
 
   // 장소를 표시하는 함수
   const displayPlaces = (places) => {
