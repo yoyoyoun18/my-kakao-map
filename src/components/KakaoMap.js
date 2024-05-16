@@ -14,11 +14,16 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(position => {
         // 위치 접근 성공 시
-        initializeMap(position.coords.latitude, position.coords.longitude);
+        initializeMap(position.coords.latitude, position.coords.longitude );
       }, () => {
         // 위치 접근 실패 시 기본 위치 사용 (서울시청)
         initializeMap(37.5662952, 126.9779451);
-      });
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,          
+        maximumAge: 60000 
+      }
+    );
     } else {
       // Geolocation이 지원되지 않는 경우
       alert('이 브라우저에서는 Geolocation이 지원되지 않습니다.');
@@ -36,22 +41,17 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
 
     const createdMap = new window.kakao.maps.Map(container, options);
     setMap(createdMap);
-  };
 
+    // 타일이 로드된 후에 실행될 이벤트 리스너 추가
+    window.kakao.maps.event.addListener(createdMap, 'tilesloaded', () => {
+      displayPlaces([{
+        y: lat,
+        x: lng,
+        place_name: "내 위치"
+      }]);
+    });
+};
 
-  // 지도 생성 및 초기화
-  useEffect(() => {
-    const container = document.getElementById('map');
-    const options = {
-      center: new window.kakao.maps.LatLng(37.5662952, 126.9779451), // 서울시청 좌표
-      level: 5,
-    };
-
-    const createdMap = new window.kakao.maps.Map(container, options);
-    setMap(createdMap);
-  }, []);
-
-  // 검색어 변경 감지
   useEffect(() => {
     setKeyword(searchWord);
   }, [searchWord]);
@@ -68,6 +68,16 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
       return () => {
         window.kakao.maps.event.removeListener(map, 'center_changed', handleCenterChange);
       };
+    }
+  }, [map]);
+
+  useEffect(() => {
+    if (map) {
+      displayPlaces([{
+        y: map.getCenter().getLat(),
+        x: map.getCenter().getLng(),
+        place_name: "내 위치"
+      }]);
     }
   }, [map]);
 
@@ -142,6 +152,7 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
         } else {
           setData(accumulatedResults); // 모든 페이지의 데이터 로드가 완료되면 상태 업데이트
           displayPlaces(accumulatedResults);
+          console.log(accumulatedResults);
           setLoading(false);
         }
       } else {
@@ -155,27 +166,29 @@ const KakaoMap = ({ searchWord, count, searchData, handleDataUpdate }) => {
 
   // 장소를 표시하는 함수
   const displayPlaces = (places) => {
+    console.log("Places data:", places); // 데이터 구조 확인을 위한 로그
     const newMarkers = places.map(place => {
+      console.log("Creating marker for:", place.y, place.x); // 마커 생성 정보 로그
       const marker = new window.kakao.maps.Marker({
         map: map,
-        position: new window.kakao.maps.LatLng(place.y, place.x),
+        position: new window.kakao.maps.LatLng(place.y, place.x), // 위치 생성 시 위도, 경도 순서 확인
       });
-
+  
       const infowindow = new window.kakao.maps.InfoWindow({
         content: `<div style="padding:5px;font-size:12px;">${place.place_name}</div>`,
       });
-
+  
       window.kakao.maps.event.addListener(marker, 'mouseover', () => {
         infowindow.open(map, marker);
       });
-
+  
       window.kakao.maps.event.addListener(marker, 'mouseout', () => {
         infowindow.close();
       });
-
+  
       return marker;
     });
-
+  
     setMarkers(newMarkers);
   };
 
